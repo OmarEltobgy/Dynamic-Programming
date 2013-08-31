@@ -1,0 +1,41 @@
+import java.math.BigInteger;
+import java.util.*;
+
+public class UVA_787_MaximumSubsequenceProduct 
+{
+	static int[] arr = new int[110];
+	static int N, start, end, i;
+	static BigInteger best, temp;
+	public static void main(String[] args) 
+	{
+		Scanner in = new Scanner(System.in);
+		while(in.hasNextInt())
+		{
+			N = 0;
+			arr[N] = in.nextInt();
+			best = BigInteger.valueOf(arr[N]);
+			while(arr[N] != -999999)
+			{
+				N++;
+				arr[N] = in.nextInt();
+			}
+			for(start=0; start<N; start++)
+			{
+				for(end=start; end<N; end++)
+				{
+					temp = BigInteger.ONE;
+					for(i=start; i<=end; i++)
+					{
+						temp = temp.multiply(BigInteger.valueOf(arr[i]));
+					}
+					if(best.compareTo(temp) == -1)
+					{
+						best = temp;
+					}
+				}
+			}
+			System.out.println(best);
+		}
+		in.close();
+	}
+}
