@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <iostream>
+#include <string.h>
+using namespace std;
+
+int N, total;
+int value[210], number[210], dp[210][20010], dp2[210][20010], INF=10000000;
+int solve2(int index, int counter)
+{
+	if(counter == 0)
+	{
+		return 0;
+	}
+	if(index == N)
+	{
+		return INF;
+	}
+	if(dp2[index][counter] != -1)
+	{
+		return dp2[index][counter];
+	}
+	int result = INF;
+	int leave = solve2(index+1, counter);
+	result = min(leave, result);
+	int take = INF;
+	if(counter-value[index] >= 0)
+	{
+		take = 1 + solve2(index, counter-value[index]);
+	}
+	result = min(take, result);
+	return dp2[index][counter] = result;
+}
+int solve(int index, int counter)
+{
+	if(counter <= 0)
+	{
+		return solve2(0, -1*counter);
+	}
+	if(index == N)
+	{
+		return INF;
+	}
+	if(dp[index][counter] != -1)
+	{
+		return dp[index][counter];
+	}
+	int result = INF;
+	int leave = solve(index+1, counter);
+	result = min(leave, result);
+	int take = INF;
+	if(number[index] > 0)
+	{
+		number[index] --;
+		take = 1 + solve(index, counter-value[index]);
+		number[index] ++;
+	}
+	result = min(take, result);
+	return dp[index][counter] = result;
+}
+int main()
+{
+	memset(dp, -1, sizeof(dp));
+	memset(dp2, -1, sizeof(dp2));
+	scanf("%d %d",&N,&total);
+	for(int i=0; i<N; i++)
+	{
+		scanf("%d",&value[i]);
+	}
+	for(int i=0; i<N; i++)
+	{
+		scanf("%d",&number[i]);
+	}
+	int temp = solve(0, total);
+	if(temp == INF)
+	{
+		printf("-1\n");
+	}
+	else
+	{
+		printf("%d\n", temp);
+	}
+}
