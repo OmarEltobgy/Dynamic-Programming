@@ -1,0 +1,82 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <queue>
+#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include <map>
+#include <functional>
+#include <stack>
+#include <math.h>
+#include <iterator>
+
+using namespace std;
+
+int timeNeeded[10][20]; // 1st index for each one of the 3 team members and 2nd index for each one of the problems
+int dp[290][4][4100];// 1st index 280 to indicate the remaining time
+                      // 2nd index 2^3 to use it as a bit mask to indicate which player last solved a problem
+                      // 3rd Index 2^12 to use it as a bit mask to indicate which problems are solved
+int problemsN;
+
+int solve(int timeRemaining, int lastMember, int problemsSolved)
+{
+    int maximum = 0; // we must initialize it with 0 not any other lower value because we return this value if we don't find
+                     // any problem that we can solve in the remaining time and when this value is returned it is added
+                     // to the previous states so it has to be 0
+
+    //timeRemaining can't be <= 0
+    if(timeRemaining == 0 || problemsSolved == ((1<<problemsN) - 1)) // note that using pow(2,problemsN)-1 will get TL
+                                                        // Don't forget these 2 conditions as base cases
+    {
+        return 0; // return 0 to add no new problems to the already solved problems
+    }
+
+    if(dp[timeRemaining][lastMember][problemsSolved] != -1)
+    {
+        return dp[timeRemaining][lastMember][problemsSolved];
+    }
+
+    for(int i=0; i<3; i++)
+    {
+        if(i != lastMember)
+        {
+            for(int j=0; j<problemsN; j++)
+            {
+                if((problemsSolved & (1<<j)) == 0 && timeRemaining-timeNeeded[i][j] >= 0)
+                {
+                    int temp = 1 + solve(timeRemaining-timeNeeded[i][j], i, (problemsSolved | (1<<j)));
+                    maximum = max(maximum, temp);
+                }
+            }
+        }
+    }
+
+    return dp[timeRemaining][lastMember][problemsSolved] = maximum;
+}
+
+int main()
+{
+    int testsN;
+    scanf("%d",&testsN);
+
+    while(testsN--)
+    {
+        scanf("%d",&problemsN);
+        for(int i=0; i<3; i++)
+        {
+            for(int j=0; j<problemsN; j++)
+            {
+                scanf("%d",&timeNeeded[i][j]);
+            }
+        }
+
+        memset(dp, -1, sizeof(dp));
+
+        int res = solve(280, 4, 0); // last member = 4 any value bigger than 3 because at first all members can solve
+
+        printf("%d\n", res);
+    }
+
+    return 0;
+}
