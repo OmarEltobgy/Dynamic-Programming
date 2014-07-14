@@ -1,0 +1,70 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <queue>
+#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include <map>
+#include <functional>
+#include <stack>
+#include <math.h>
+#include <iterator>
+
+using namespace std;
+
+int lengths[100];
+int dp[100][100];
+int N;
+
+int solve(int leftIndex, int rightIndex)
+{
+    int toReturn = 1000000000;
+
+    if(leftIndex+1 == rightIndex) // Only one segment remaining
+    {
+        return 0;
+    }
+
+    if(dp[leftIndex][rightIndex] != -1)
+    {
+        return dp[leftIndex][rightIndex];
+    }
+
+    int lengthToAdd = lengths[rightIndex] - lengths[leftIndex];
+
+    for(int i=leftIndex+1; i<rightIndex; i++)
+    {
+        int temp = solve(leftIndex, i) + solve(i, rightIndex) + lengthToAdd;
+        toReturn = min(toReturn, temp);
+    }
+
+    return dp[leftIndex][rightIndex] = toReturn;
+}
+
+int main()
+{
+    int stickLength;
+
+    scanf("%d",&stickLength);
+
+    while(stickLength != 0)
+    {
+        scanf("%d",&N);
+        for(int i=1; i<=N; i++)
+        {
+            scanf("%d",&lengths[i]);
+        }
+        lengths[0] = 0;
+        lengths[N+1] = stickLength;
+
+        memset(dp, -1, sizeof(dp));
+
+        int res = solve(0, N+1);
+
+        printf("The minimum cutting is %d.\n", res);
+
+        scanf("%d",&stickLength);
+    }
+    return 0;
+}
