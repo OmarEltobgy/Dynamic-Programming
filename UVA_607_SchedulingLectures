@@ -1,0 +1,125 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <queue>
+#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include <map>
+#include <functional>
+#include <stack>
+#include <math.h>
+#include <iterator>
+
+using namespace std;
+
+typedef pair<int, int> ii;
+
+int topicsN, lectureTime, happy;
+int neededTime[1100];
+ii dp[1100][600];
+int INF = 1000000000;
+
+int calcDI(int t)
+{
+    if(t == 0)
+    {
+        return 0;
+    }
+    else if(t>=1 && t<=10)
+    {
+        return -1*happy;
+    }
+    else
+    {
+        return ((t-10)*(t-10));
+    }
+}
+
+ii solve(int nowTopic, int thisLectureTime)
+{
+    ii continueLecture, newLecture;
+    int continueLectureN=INF, continueLectureDI=INF, newLectureN=INF, newLectureDI=INF;
+
+    if(nowTopic == topicsN) // End
+    {
+        return ii(1, calcDI(lectureTime-thisLectureTime));
+    }
+
+    if(dp[nowTopic][thisLectureTime].first != -1 && dp[nowTopic][thisLectureTime].second != -1)
+    {
+        return dp[nowTopic][thisLectureTime];
+    }
+
+    if(thisLectureTime != 0)
+    {
+        newLecture = solve(nowTopic, 0);
+        newLecture.first ++; // Very Important Line Don't forget it as we return this pair
+        newLectureN = newLecture.first;
+        newLecture.second += calcDI(lectureTime-thisLectureTime); // Very Important Line Don't forget it as we return this pair
+        newLectureDI = newLecture.second;
+    }
+
+    if(thisLectureTime + neededTime[nowTopic] <= lectureTime)
+    {
+        continueLecture = solve(nowTopic+1, thisLectureTime+neededTime[nowTopic]);
+        continueLectureN = continueLecture.first;
+        continueLectureDI = continueLecture.second;
+    }
+
+    if(newLectureN < continueLectureN)
+    {
+        return dp[nowTopic][thisLectureTime] = newLecture;
+    }
+    else if(newLectureN > continueLectureN)
+    {
+        return dp[nowTopic][thisLectureTime] = continueLecture;
+    }
+    else //if(newLectureN == continueLectureN)
+    {
+        if(newLectureDI < continueLectureDI)
+        {
+            return dp[nowTopic][thisLectureTime] = newLecture;
+        }
+        else //if(newLectureDI >= continueLectureDI)
+        {
+            return dp[nowTopic][thisLectureTime] = continueLecture;
+        }
+    }
+}
+
+int main()
+{
+    int tt = 1;
+    bool first = true;
+    scanf("%d",&topicsN);
+    while(topicsN != 0)
+    {
+        if(first == true)
+        {
+            first = false;
+        }
+        else
+        {
+            printf("\n");
+        }
+
+        scanf("%d %d",&lectureTime,&happy);
+        for(int i=0; i<topicsN; i++)
+        {
+            scanf("%d",&neededTime[i]);
+        }
+
+        memset(dp, -1, sizeof(dp));
+
+        ii res = solve(0, 0);
+
+        printf("Case %d:\n", tt);
+        printf("Minimum number of lectures: %d\n", res.first);
+        printf("Total dissatisfaction index: %d\n", res.second);
+
+        scanf("%d",&topicsN);
+        tt++;
+    }
+    return 0;
+}
