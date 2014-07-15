@@ -1,0 +1,74 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <queue>
+#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include <map>
+#include <functional>
+#include <stack>
+#include <math.h>
+#include <iterator>
+
+using namespace std;
+
+int guestsN, sticksN;
+int lengths[5050];
+long long INF = 10000000000;
+long long dp[5050][1100];
+
+long long solve(int nowStick, int nowGuest)
+{
+    long long leave=INF, take=INF;
+
+    if(nowGuest == guestsN) // END of Guests and Success regardless of nowStick
+    {
+        return 0;
+    }
+
+    if(nowStick == sticksN || sticksN-nowStick < (guestsN-nowGuest)*3) // 2nd Condition very important
+       // we make sure that before any call that the there are at least the minimum amount of needed sticks
+       // so we make sure that the remaining sticks (sticksN-nowStick) is less than or equal neededSticks (remainingGuests*3)
+    {
+        return INF;
+    }
+
+    if(dp[nowStick][nowGuest] != -1)
+    {
+        return dp[nowStick][nowGuest];
+    }
+
+    leave = solve(nowStick+1, nowGuest); // skip this stick to the next stick
+
+    if(nowStick+1 < sticksN)
+    {
+        long long toAdd = (lengths[nowStick+1] - lengths[nowStick]) * (lengths[nowStick+1] - lengths[nowStick]); //(A-B)^2
+        take = toAdd + solve(nowStick+2, nowGuest+1); // take this stick and the next stick
+    }
+
+    return dp[nowStick][nowGuest] = min(leave, take);
+}
+
+int main()
+{
+    int testsN;
+    scanf("%d",&testsN);
+    while(testsN--)
+    {
+        scanf("%d %d",&guestsN,&sticksN);
+        guestsN += 8;
+
+        for(int i=0; i<sticksN; i++)
+        {
+            scanf("%d",&lengths[i]);
+        }
+
+        memset(dp, -1, sizeof(dp));
+
+        long long res = solve(0, 0);
+
+        printf("%lld\n", res);
+    }
+    return 0;
+}
