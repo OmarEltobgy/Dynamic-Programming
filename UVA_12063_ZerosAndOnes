@@ -1,0 +1,76 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <queue>
+#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include <map>
+#include <functional>
+#include <stack>
+#include <math.h>
+#include <iterator>
+
+using namespace std;
+
+long long dp[70][110][110];
+int N, K;
+
+long long solve(int nowIndex, int onesN, int numberModK)
+{
+    int newNumberModK;
+
+    if(nowIndex == -1)
+    {
+        if(onesN == N/2 && numberModK == 0)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    if(dp[nowIndex][onesN][numberModK] != -1)
+    {
+        return dp[nowIndex][onesN][numberModK];
+    }
+
+    newNumberModK = (numberModK*2)%K;
+    long long zero = solve(nowIndex-1, onesN  , newNumberModK);
+
+    newNumberModK = ((numberModK*2)%K + 1) % K;
+    long long one  = solve(nowIndex-1, onesN+1, newNumberModK);
+
+    return dp[nowIndex][onesN][numberModK] = one+zero;
+}
+
+int main()
+{
+    int testsN;
+    scanf("%d",&testsN);
+    for(int tt=1; tt<=testsN; tt++)
+    {
+        scanf("%d %d",&N,&K);
+
+        long long res;
+
+        if(N%2==1 || K==0)
+        {
+            res = 0;
+        }
+        else
+        {
+            memset(dp, -1, sizeof(dp));
+
+            res = solve(N-2, 1, 1%K);
+        }
+
+        printf("Case %d: %lld\n", tt, res);
+    }
+
+
+    return 0;
+}
+
